@@ -1,25 +1,3 @@
-source("./api/semrush.R")
-source('./tools.R')
-source("./getGoogleRelated.R")
-
-##################################################
-#step 1: get the max near competitor of the domain
-##################################################
-
-#semrush <- semrushGetInfoByUrl("ovh.com")
-
-#tranform into a vector of valid URLS for Apache Tika
-#if (!grepl("http",semrush$dn[1]))
-#  semrush$dn <- paste0("http://", semrush$dn)
-
-#URLs <- head(semrush,20)
-
-# Test with Google
-URLs <- getGoogleRelated("loire.gouv.fr/IMG/pdf/guide_methodo_cuisines_pedagogiques.pdf")
-
-###################################
-#step 2: apache tika crawl metadata
-###################################
 
 if(!requireNamespace('devtools')){
   install.packages('devtools', 
@@ -29,6 +7,36 @@ if(!requireNamespace('devtools')){
 if(!requireNamespace('rtika')){
   devtools::install_github('ropensci/rtika')
 }
+
+packages <- c("rlist", "rvest", "stringr","magrittr", "data.table", "XML") 
+if (length(setdiff(packages, rownames(installed.packages()))) > 0) { 
+  install.packages(setdiff(packages, rownames(installed.packages()))) 
+}
+
+
+source("./api/semrush.R")
+source('./tools.R')
+source("./getGoogleRelated.R")
+
+##################################################
+#step 1: get the max near competitor of the domain
+##################################################
+
+#semrush <- semrushGetInfoByUrl("ovh.com")
+#tranform into a vector of valid URLS for Apache Tika
+#if (!grepl("http",semrush$dn[1]))
+#  semrush$dn <- paste0("http://", semrush$dn)
+#URLs <- head(semrush,20)
+
+# Test with Google
+URLs <- getGoogleRelated("seo-camp.org")
+
+
+###################################
+#step 2: apache tika crawl metadata
+###################################
+
+
 
 library(rtika)
 library(magrittr)
@@ -43,8 +51,8 @@ if(is.na(tika_jar())){
 
 # URL checking is long ??? or Apache Tika is slow to launch : Rewrite the Rtika Package with boost mode
 metadata <- tika_json(URLs$dn, 
-                        threads=20, 
-                        timeout=5000, 
+                        threads=40, 
+                        timeout=3000, 
                         max_restarts=1, 
                         cleanup=FALSE,
                         quiet=FALSE
